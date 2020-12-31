@@ -43,7 +43,21 @@ client.on('message', msg => {
 
 	//msg.channel.send(`${msg.author.displayAvatarURL({ dynamic: true })}`);
 
-    if (command === 'meow') {
+    if (command === 'help') {
+        const exampleEmbed = new Discord.MessageEmbed()
+            .setColor('#0099ff')
+            //.setTitle('Commands')
+            .setURL('https://isfycsmn.ytmnd.com/')
+            .setAuthor('Commands', msg.author.displayAvatarURL())
+            .setDescription('ヾ(^▽^*)))\nHewo uwu nozzles u :3\nFor more info on a specific command, use `neko help [command]`.')
+            //.setThumbnail('https://i.imgur.com/WHeAvlc.jpg')
+            .addFields(
+                { name: '🐈 Cat Things', value: '`neko meow` `neko lewd`' },
+                { name: '🤗 Actions', value: '`neko [action] [@user]`' }
+            )
+        msg.channel.send(exampleEmbed);
+    }
+    else if (command === 'meow') {
         var num = 1;
         if (args.length > 0) {
             num = parseInt(args[0], 10);
@@ -91,7 +105,7 @@ client.on('message', msg => {
         // check if message is of the form `neko [action] @user`
         var victim = get_user_from_mention(words[words.length - 1]);
         var action = words.slice(0, words.length - 1).join(' ');
-        //console.log('action: %s | victim: %s', action, victim);
+        console.log('action: %s | victim: %s', action, victim);
         if (victim) { // if last word is a mention, send a gif
             Giphy.search({
                 limit: 10,
@@ -99,10 +113,13 @@ client.on('message', msg => {
                 fmt: 'json'
             }, function (err, res) {
                 console.log(res);
-                msg.channel.send(`${msg.author.username} ${action}s ${victim.username}!!! xDDDDD`);
                 if (res.data && res.data.length > 0) {
                     var n = rand_int(0, res.data.length - 1);
-                    msg.channel.send(res.data[n].url);
+                    const embed = new Discord.MessageEmbed()
+                        .setColor('#0099ff')
+                        .setAuthor(`${msg.author.username} ${action}s ${victim.username}!!! xDDDDD`, msg.author.displayAvatarURL())
+                        .setImage('https://media.giphy.com/media/'+res.data[n].id+'/giphy.gif');
+                    msg.channel.send(embed);
                 } else {
                     msg.channel.send("Try again later (giphy wants me to slow down 😢)");
                 }
