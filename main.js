@@ -12,28 +12,27 @@ client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
 })
 
-
 // Parse user messages
 client.on('message', msg => {
     if (msg.author.bot) return;
+    var msg_lowered = msg.content.toLowerCase();
 
-    var lowered = msg.content.toLowerCase();
-    if (lowered === 'who' || lowered === 'who?') {
+    if (msg_lowered === 'who' || msg_lowered === 'who?') {
         var responses = {   "cares? no one" :  1,
                             "cares? your mom" : 1,
                             "cares?" : 3};
         msg.channel.send(pick_weighted_message(responses));
     }
-    else if (lowered === 'uwu') {
+    else if (msg_lowered === 'uwu') {
         msg.channel.send("owo");
     }
-    else if (lowered === 'owo') {
-        msg.channel.send("owo");
+    else if (msg_lowered === 'owo') {
+        msg.channel.send("uwu");
     }
 
     // neko prefixed commands
-    if (!msg.content.startsWith(prefix)) return;
-    const without_prefix = msg.content.slice(prefix.length);
+    if (!msg_lowered.startsWith(prefix)) return;
+    const without_prefix = msg_lowered.slice(prefix.length);
     var words = without_prefix.split(' ');
     words = words.slice(1, words.length);
     const command = words[0];
@@ -89,20 +88,24 @@ client.on('message', msg => {
         msg.channel.send(pick_weighted_message(responses));
     }
     else if (words.length > 1) {
-        // check if message is of the form:
-        // neko [action] @user
+        // check if message is of the form `neko [action] @user`
         var victim = get_user_from_mention(words[words.length - 1]);
         var action = words.slice(0, words.length - 1).join(' ');
-        console.log('action: %s | victim: %s', action, victim);
-        if (victim) {
+        //console.log('action: %s | victim: %s', action, victim);
+        if (victim) { // if last word is a mention, send a gif
             Giphy.search({
+                limit: 10,
                 q: action,
                 fmt: 'json'
             }, function (err, res) {
-                //console.log(res);
+                console.log(res);
                 msg.channel.send(`${msg.author.username} ${action}s ${victim.username}!!! xDDDDD`);
-                var n = rand_int(0, res.data.length);
-                msg.channel.send(res.data[n].url);
+                if (res.data && res.data.length > 0) {
+                    var n = rand_int(0, res.data.length - 1);
+                    msg.channel.send(res.data[n].url);
+                } else {
+                    msg.channel.send("Try again later (giphy wants me to slow down 😢)");
+                }
             });
         }
     }
